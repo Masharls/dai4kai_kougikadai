@@ -1,0 +1,61 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Search Sample</title>
+    <style>
+    
+    dt { font-weight: bold; }
+    dl,dd { font-size: .9rem; }
+    dd { margin-bottom: 1em; 
+        font-size: 0.75em; }
+    </style>
+</head>
+<body>
+
+<dl id="display">
+</dl>
+    <script>
+        const accessKey = '' // Azureで取得したkeyを指定してください
+        const endpoint = 'https://api.bing.microsoft.com/v7.0/search'
+
+        async function getData(url = ''){
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': accessKey
+                },
+            })
+            return response.json()
+        }
+
+        const query = encodeURI(prompt('検索入力をする')) 
+        getData(endpoint+ '?count=50&responseFilter=Webpages&safeSearch=Strict&q=' + query)
+            .then(data => {
+                console.log(data) // 元のresponseを確認する
+                const webPages = data.webPages.value
+                Object.keys(webPages).forEach(
+                    element => {
+                        webPage = webPages[element]
+                        if (!webPage.id) return // 次のループへ
+
+                        const name = webPage.name
+                        const url = webPage.url
+                        const snippet = webPage.snippet
+
+                        const display = document.getElementById('display')
+                        const dt = document.createElement('dt')
+                        const a = document.createElement('a')
+                        const dd = document.createElement('dd')
+                        display.appendChild(dt)
+                        a.innerText = name
+                        a.href = url 
+                        display.appendChild(a)
+                        dd.innerText = snippet
+                        display.appendChild(dd)
+                    }
+                )
+            })
+    </script>
+</body>
+</html>
